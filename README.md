@@ -4,6 +4,7 @@
 #### Get Started
 ```
 git clone https://github.com/cunninghamd/vuejs-expressjs-registration
+emacs config/config.json # -> set database schema/credentials
 cd vuejs-expressjs-registration
 npm install
 npm start
