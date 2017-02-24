@@ -6,7 +6,7 @@ router.get("/", function(request, response, next) {
     models.company.findAll().then(function(companies) {
         response.render("company/index", {
             title: "Vue.js/Express.js Customer Relationship Management (CRM)",
-            register: true,
+            company: true,
             companies: JSON.stringify(companies),
             component: "company",
         });
