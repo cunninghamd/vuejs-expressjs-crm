@@ -1,0 +1,65 @@
+<div class="row" id="companies-component">
+    <div class="col-lg-4">
+        <h2>Companies</h2><br/>
+        
+        <div id="flash-component">
+            <div v-show="populated">
+                <div class="alert alert-success" v-if="success" v-text="success"></div>
+                <div class="alert alert-warning" v-if="warning" v-text="warning"></div>
+                <div class="alert alert-danger" v-if="danger" v-text="danger"></div>
+            </div>
+        </div>
+        
+        <ul>
+            <li v-for="company in companies"><a href="/company/\{{ company.id }}" @click.prevent="edit(company.id)">\{{ company.name }}, <span class="address">\{{ company.address }}, \{{ company.city }}</span></a> <a href="javascript:;" @click.prevent="delete(company.id, company.name)"><i class="fa fa-trash"></i></a></small></li>
+        </ul>
+        <button class="btn btn-lg btn-primary btn-block" @click="add" v-show="showAddButton">Add</button>
+        
+        <div v-show="showCompanyScreen">
+            <validator name="companyValidation">
+                <form novalidate @submit.prevent>
+                    <input type="hidden" id="id" name="id" v-model="id" />
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" required v-model="name" v-validate:name="['required']" autofocus />
+                    <input type="address" id="address" name="address" class="form-control" placeholder="Address" required v-model="address" v-validate:address="['required']" />
+                    <input type="city" id="city" name="city" class="form-control" placeholder="City" required v-model="city" v-validate:city="['required']" />
+                    <input type="province" id="province" name="province" class="form-control" placeholder="Province" required v-model="province" v-validate:province="['required']" />
+                    <input type="postalCode" id="postalCode" name="postalCode" class="form-control" placeholder="Postal Code" required v-model="postalCode" v-validate:postalCode="['required']" />
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Email Address" required v-model="email" v-validate:email="['required', 'email']" />
+                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone Number" required v-model="phone" v-validate:phone="['required', 'phone']" />
+                    <input type="text" id="fax" name="fax" class="form-control" placeholder="Fax Number" required v-model="fax" v-validate:fax="['required', 'phone']" />
+                    
+                    <button class="btn btn-lg btn-primary btn-block" @click="save">Save</button> <button class="btn btn-lg btn-secondary btn-block" @click="reset">Cancel</button>
+                </form>
+            </validator>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-lg-offset-2" v-show="showEmployees">
+        <h3>Employees</h3><br/>
+        
+        <ul>
+            <li v-for="employee in employees"><a href="/employees/\{{ employee.id }}" @click.prevent="editEmployee(employee.id)">\{{ employee.firstName }} \{{ employee.lastName }}, <span class="address">\{{ employee.address }}, \{{ employee.city }}</span></a> <a href="javascript:;" @click.prevent="deleteEmployee(employee.id, employee.firstName)"><i class="fa fa-trash"></i></a></small></li>
+        </ul>
+        <button class="btn btn-lg btn-primary btn-block" @click="addEmployee" v-show="showAddEmployeeButton">Add</button>
+        
+        <div v-show="showEmployeeScreen">
+            <validator name="employeeValidation">
+                <form novalidate @submit.prevent>
+                    <input type="text" id="firstName" name="firstName" class="form-control" placeholder="First Name" required v-model="employee.firstName" v-validate:firstName="['required']" autofocus />
+                    <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Last Name" required v-model="employee.lastName" v-validate:lastName="['required']" autofocus />
+                    <input type="text" id="address" name="address" class="form-control" placeholder="Address" required v-model="employee.address" v-validate:address="['required']" />
+                    <input type="text" id="city" name="city" class="form-control" placeholder="City" required v-model="employee.city" v-validate:city="['required']" />
+                    <input type="text" id="province" name="province" class="form-control" placeholder="Province" required v-model="employee.province" v-validate:province="['required']" />
+                    <input type="text" id="postalCode" name="postalCode" class="form-control" placeholder="Postal Code" required v-model="employee.postalCode" v-validate:postalCode="['required']" />
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Email Address" required v-model="employee.email" v-validate:email="['required', 'email']" />
+                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone Number" required v-model="employee.phone" v-validate:phone="['required', 'phone']" />
+                    <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Mobile Number" required v-model="employee.mobile" v-validate:mobile="['required', 'phone']" />
+                    <input type="text" id="salary" name="salary" class="form-control" placeholder="Salary" required v-model="employee.salary" v-validate:salary="['required']" />
+                    <input type="date" id="startDate" name="startDate" class="form-control" placeholder="Start Date" required v-model="employee.startDate" v-validate:startDate="['required']" />
+                    
+                    <button class="btn btn-lg btn-primary btn-block" @click="saveEmployee">Save</button> <button class="btn btn-lg btn-secondary btn-block" @click="resetEmployee">Cancel</button>
+                </form>
+            </validator>
+        </div>
+    </div>
+</div>

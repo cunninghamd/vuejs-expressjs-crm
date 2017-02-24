@@ -1,0 +1,38 @@
+<script>
+    var flashData = {
+        populated: false,
+        success: "",
+        warning: "",
+        danger: "",
+    };
+    
+    var flash = {
+        message: function(type, message, duration) {
+            duration = duration || 5000;
+            
+            flashData[type] = message;
+            flashData.populated = true;
+            
+            setTimeout(function(type) {
+                flashData[type] = "";
+                
+                var populated = false;
+                for (var property in flashData) {
+                    if (property === "populated") {
+                        // skip
+                    } else {
+                        if (flashData[property]) {
+                            populated = true;
+                        }
+                    }
+                }
+                flashData.populated = populated;
+            }, duration, type);
+        },
+    };
+    
+    new Vue({
+        el: "#flash-component",
+        data: flashData,
+    });
+</script>

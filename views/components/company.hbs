@@ -1,0 +1,236 @@
+<script>
+    new Vue({
+        el: "#companies-component",
+        data: {
+            /* jshint ignore:start */
+            companies: {{{ companies }}},
+            /* jshint ignore:end */
+            showCompanyScreen: false,
+            showAddButton: true,
+            showEmployees: false,
+            showAddEmployeeButton: false,
+            showEmployeeScreen: false,
+            id: null,
+            name: "",
+            address: "",
+            city: "",
+            province: "",
+            postalCode: "",
+            email: "",
+            phone: "",
+            fax: "",
+            employees: [],
+            employee: {
+                id: null,
+                companyId: null,
+                firstName: "",
+                lastName: "",
+                address: "",
+                city: "",
+                province: "",
+                postalCode: "",
+                email: "",
+                phone: "",
+                mobile: "",
+                salary: "",
+                startDate: "",
+            },
+        },
+        validators: {
+            email: function(value) {
+                return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
+            },
+            phone: function(value) {
+                return /^\({0,1}\d{3}\){0,1}\s{0,1}[\s-\.]{0,1}\d{3}[\s-\.]{0,1}\d{4}$/.test(value);
+            },
+        },
+        methods: {
+            add: function() {
+                this.showAddButton = false;
+                this.showCompanyScreen = true;
+            },
+            edit: function(id) {
+                this.$http.get("/company/" + id).then(function(response) {
+                    var company = response.data;
+                    this.id = company.id;
+                    this.name = company.name;
+                    this.address = company.address;
+                    this.city = company.city;
+                    this.province = company.province;
+                    this.postalCode = company.postalCode;
+                    this.email = company.email;
+                    this.phone = company.phone;
+                    this.fax = company.fax;
+                    
+                    this.$http.get("/company/" + id + "/employees").then(function(response) {
+                        if (response.status == 200) {
+                            this.employees = response.data;
+                            
+                            this.showCompanyScreen = true;
+                            this.showAddButton = false;
+                            this.showEmployees = true;
+                            this.showAddEmployeeButton = true;
+                        } else {
+                            flash.message("error", "Whoops! Something went awry!", 60000);
+                        }
+                    });
+                }, function(response) {
+                    flash.message("error", "Whoops! Something went awry!", 60000);
+                });
+            },
+            save: function() {
+                if (this.$companyValidation.invalid) {
+                    flash.message("danger", "Invalid fields below.");
+                    return false;
+                }
+                
+                var company = {
+                    id: this.id,
+                    name: this.name,
+                    address: this.address,
+                    city: this.city,
+                    province: this.province,
+                    postalCode: this.postalCode,
+                    email: this.email,
+                    phone: this.phone,
+                    fax: this.fax,
+                };
+                
+                this.$http.post("/company", company, function(response) {
+                    this.reset();
+                    
+                    this.$http.get("/company/list", function(response) {
+                        this.companies = response;
+                        flash.message("success", "Successfully saved " + company.name + "!");
+                    });
+                });
+            },
+            reset: function() {
+                this.showAddButton = true;
+                this.showCompanyScreen = false;
+                this.showEmployees = false;
+                this.$resetValidation();
+                this.id = null;
+                this.name = "";
+                this.address = "";
+                this.city = "";
+                this.province = "";
+                this.postalCode = "";
+                this.email = "";
+                this.phone = "";
+                this.fax = "";
+                this.employees = [];
+            },
+            delete: function(id, name) {
+                if (!confirm("Are you sure you want to delete " + name + "?")) {
+                    return false;
+                }
+                
+                this.$http.delete("/company/" + id, function(response) {
+                    this.$http.get("/company/list", function(response) {
+                        this.companies = response;
+                        flash.message("success", "Successfully deleted " + name + "!");
+                        
+                        if (this.companies.length == 0) {
+                            this.reset();
+                        }
+                    });
+                });
+            },
+            addEmployee: function() {
+                this.showAddEmployeeButton = false;
+                this.showEmployeeScreen = true;
+            },
+            editEmployee: function(id) {
+                console.log("edit employee");
+                
+                this.$http.get("/employee/" + id).then(function(response) {
+                    var employee = response.data;
+                    this.employee.id = employee.id;
+                    this.employee.firstName = employee.firstName;
+                    this.employee.lastName = employee.lastName;
+                    this.employee.address = employee.address;
+                    this.employee.city = employee.city;
+                    this.employee.province = employee.province;
+                    this.employee.postalCode = employee.postalCode;
+                    this.employee.email = employee.email;
+                    this.employee.phone = employee.phone;
+                    this.employee.mobile = employee.mobile;
+                    this.employee.salary = employee.salary;
+                    this.employee.startDate = employee.startDate.substring(0, 10);
+                    
+                    this.showAddEmployeeButton = false;
+                    this.showEmployeeScreen = true;
+                }, function(response) {
+                    flash.message("error", "Whoops! Something went awry!", 60000);
+                });
+            },
+            saveEmployee: function() {
+                if (this.$employeeValidation.invalid) {
+                    flash.message("danger", "Invalid fields below.");
+                    return false;
+                }
+                
+                var employee = {
+                    id: this.employee.id,
+                    companyId: this.id,
+                    firstName: this.employee.firstName,
+                    lastName: this.employee.lastName,
+                    address: this.employee.address,
+                    city: this.employee.city,
+                    province: this.employee.province,
+                    postalCode: this.employee.postalCode,
+                    email: this.employee.email,
+                    phone: this.employee.phone,
+                    mobile: this.employee.mobile,
+                    salary: String(this.employee.salary).replace("$", "").replace(",", ""),
+                    startDate: this.employee.startDate,
+                };
+                
+                this.$http.post("/employee", employee, function(response) {
+                    this.resetEmployee();
+                    
+                    this.$http.get("/company/" + this.id + "/employees", function(response) {
+                        this.employees = response;
+                        flash.message("success", "Successfully saved " + employee.firstName + "!");
+                    });
+                });
+            },
+            resetEmployee: function() {
+                this.$resetValidation();
+                this.showAddEmployeeButton = true;
+                this.showEmployees = true;
+                this.showEmployeeScreen = false;
+                this.employee.id = null;
+                this.employee.companyId = null;
+                this.employee.firstName = "";
+                this.employee.lastName = "";
+                this.employee.address = "";
+                this.employee.city = "";
+                this.employee.province = "";
+                this.employee.postalCode = "";
+                this.employee.email = "";
+                this.employee.phone = "";
+                this.employee.mobile = "";
+                this.employee.salary = "";
+                this.employee.startDate = "";
+            },
+            deleteEmployee: function(id, name) {
+                if (!confirm("Are you sure you want to delete " + name + "?")) {
+                    return false;
+                }
+                
+                this.$http.delete("/employee/" + id, function(response) {
+                    this.$http.get("/company/" + this.id + "/employees", function(response) {
+                        this.employees = response;
+                        flash.message("success", "Successfully deleted " + name + "!");
+                        
+                        if (this.employees.length == 0) {
+                            this.resetEmployee();
+                        }
+                    });
+                });
+            },
+        },
+    });
+</script>
